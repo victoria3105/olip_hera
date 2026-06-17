@@ -4,8 +4,14 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+// 1. IMPORT CONTROLLER YANG SUDAH DIBUAT
+import { useUserController } from './controllers/useUserController'
+
 function App() {
   const [count, setCount] = useState(0)
+  
+  // 2. PANGGIL LOGIC DARI CONTROLLER DI SINI
+  const { users, loading, hapusUser } = useUserController()
 
   return (
     <>
@@ -32,6 +38,50 @@ function App() {
 
       <div className="ticks"></div>
 
+      {/* 3. MASUKKAN BAGIAN CONTROLLER DAN DATA DI SINI */}
+      <section id="frontend-controller" style={{ padding: '20px', textAlign: 'left', maxWidth: '600px', margin: '0 auto' }}>
+        <h2 style={{ color: '#646cff' }}>Daftar Pengguna (Frontend Controller)</h2>
+        <p style={{ opacity: 0.7 }}>Data di bawah ini diatur sepenuhnya oleh Custom Hook sebagai Controller.</p>
+        
+        {loading ? (
+          <h3>Sedang memuat data dari API...</h3>
+        ) : (
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {users.map((user) => (
+              <li key={user.id} style={{ 
+                background: '#1a1a1a', 
+                padding: '10px 15px', 
+                borderRadius: '8px', 
+                marginBottom: '10px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                border: '1px solid #333'
+              }}>
+                <span>
+                  <strong>{user.name}</strong> – <span style={{ color: '#aaa' }}>{user.email}</span>
+                </span>
+                <button 
+                  onClick={() => hapusUser(user.id)}
+                  style={{ 
+                    background: '#ff4d4d', 
+                    color: 'white', 
+                    border: 'none', 
+                    padding: '5px 10px', 
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Hapus
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <div className="ticks"></div>
+
       <section id="next-steps">
         <div id="docs">
           <svg className="icon" role="presentation" aria-hidden="true">
@@ -41,13 +91,13 @@ function App() {
           <p>Your questions, answered</p>
           <ul>
             <li>
-              <a href="https://vite.dev/" target="_blank">
+              <a href="https://vite.dev/" target="_blank" rel="noreferrer">
                 <img className="logo" src={viteLogo} alt="" />
                 Explore Vite
               </a>
             </li>
             <li>
-              <a href="https://react.dev/" target="_blank">
+              <a href="https://react.dev/" target="_blank" rel="noreferrer">
                 <img className="button-icon" src={reactLogo} alt="" />
                 Learn more
               </a>
@@ -62,48 +112,32 @@ function App() {
           <p>Join the Vite community</p>
           <ul>
             <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+              <a href="https://github.com/vitejs/vite" target="_blank" rel="noreferrer">
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#github-icon"></use>
                 </svg>
                 GitHub
               </a>
             </li>
             <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+              <a href="https://chat.vite.dev/" target="_blank" rel="noreferrer">
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#discord-icon"></use>
                 </svg>
                 Discord
               </a>
             </li>
             <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+              <a href="https://x.com/vite_js" target="_blank" rel="noreferrer">
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#x-icon"></use>
                 </svg>
                 X.com
               </a>
             </li>
             <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+              <a href="https://bsky.app/profile/vite.dev" target="_blank" rel="noreferrer">
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#bluesky-icon"></use>
                 </svg>
                 Bluesky
