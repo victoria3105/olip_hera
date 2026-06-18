@@ -18,7 +18,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # MEMPERBAIKI SETUP PHP KE VERSI STABIL & RELEVAN (v2)
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -26,12 +25,17 @@ jobs:
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, curl
         coverage: none
 
+    # Langkah tambahan untuk mengecek apakah GitHub benar-benar pakai PHP 8.3
+    - name: Check PHP Version
+      run: php -v
+
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
 
+    # Kita jalankan artisan dengan memanggil PHP secara absolut
     - name: Generate key
       run: php artisan key:generate
 
