@@ -12,49 +12,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout repository terlebih dahulu agar semua file project terunduh
+    # 1. Ambil source code project
     - uses: actions/checkout@v4
 
-    # 2. Setup PHP (Menggunakan versi v2 terbaru dan PHP 8.2/8.3 yang stabil untuk Laravel saat ini)
+    # 2. Setup PHP versi stabil untuk Laravel
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+        extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite
         coverage: none
 
+    # 3. Copy environment file
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-    # 3. Ambil cache dependencies agar proses install lebih cepat
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: |
-        echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-    - uses: actions/cache@v4
-      with:
-        path: ${{ steps:composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
+    # 4. Install Dependencies dengan cerdas (Otomatis handle cache & ekstensi)
     - name: Install Dependencies
-      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      uses: ramsey/composer-install@v3
+      with:
+        composer-options: "--prefer-dist --no-scripts"
 
-    # 4. Ambil key dari env jika ada, atau generate baru
+    # 5. Generate Application Key
     - name: Generate key
       run: php artisan key:generate
 
-    # 5. Sesuaikan permission folder agar tidak error saat menulis log/cache
+    # 6. Set Permission Folder agar tidak error permission denied
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
 
-    # 6. Setup database SQLite untuk testing
+    # 7. Siapkan Database SQLite untuk testing
     - name: Create Database
       run: |
         mkdir -p database
         touch database/database.sqlite
 
-    # 7. Jalankan testing
+    # 8. Jalankan Unit & Feature Test
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
         DB_CONNECTION: sqlite
