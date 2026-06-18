@@ -8,62 +8,43 @@ on:
 
 jobs:
   laravel-tests:
+
     runs-on: ubuntu-latest
+    
+    # Mengunci folder kerja langsung ke folder './Backend' milik Anda
+    defaults:
+      run:
+        working-directory: './Backend'
 
     steps:
-    # 1. Ambil source code project
     - uses: actions/checkout@v4
 
-    # 2. Setup PHP versi stabil
-    - uses: shivammathur/setup-php@v2
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.3'
         extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite
         coverage: none
 
-    # 3. Cari otomatis letak folder Laravel Anda dan jalankan setup env
-    - name: Find Project Directory and Copy .env
-      run: |
-        TARGET_DIR=$(find . -name "composer.json" -not -path "*/vendor/*" -exec dirname {} \;)
-        if [ -z "$TARGET_DIR" ]; then
-          echo "Error: composer.json tidak ditemukan!"
-          exit 1
-        fi
-        echo "PROJECT_PATH=$TARGET_DIR" >> $GITHUB_ENV
-        
-        cd "$TARGET_DIR"
-        php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-    # 4. Paksa Install Dependencies tanpa peduli drama versi PHP (Menggunakan composer asli + flag ignore)
     - name: Install Dependencies
-      run: |
-        cd ${{ env.PROJECT_PATH }}
-        composer install --prefer-dist --no-ansi --no-interaction --no-scripts --no-progress --ignore-platform-reqs
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
 
-    # 5. Generate Application Key
     - name: Generate key
-      run: |
-        cd ${{ env.PROJECT_PATH }}
-        php artisan key:generate
+      run: php artisan key:generate
 
-    # 6. Set Permission Folder
     - name: Directory Permissions
-      run: |
-        cd ${{ env.PROJECT_PATH }}
-        chmod -R 777 storage bootstrap/cache
+      run: chmod -R 777 storage bootstrap/cache
 
-    # 7. Siapkan Database SQLite untuk testing
     - name: Create Database
       run: |
-        cd ${{ env.PROJECT_PATH }}
         mkdir -p database
         touch database/database.sqlite
 
-    # 8. Jalankan Unit & Feature Test
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: |
-        cd ${{ env.PROJECT_PATH }}
-        php artisan test
+      run: php artisan test
