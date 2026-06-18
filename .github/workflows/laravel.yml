@@ -11,7 +11,6 @@ jobs:
 
     runs-on: ubuntu-latest
     
-    # Mengunci folder kerja langsung ke folder './Backend' milik Anda
     defaults:
       run:
         working-directory: './Backend'
@@ -19,11 +18,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # MEMPERBAIKI SETUP PHP KE VERSI STABIL & RELEVAN (v2)
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-        extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, curl
         coverage: none
 
     - name: Copy .env
