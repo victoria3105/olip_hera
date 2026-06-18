@@ -21,26 +21,24 @@ jobs:
         extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite
         coverage: none
 
-    # 3. Cari otomatis di mana letak folder Laravel Anda dan jalankan setup env
+    # 3. Cari otomatis letak folder Laravel Anda dan jalankan setup env
     - name: Find Project Directory and Copy .env
       run: |
         TARGET_DIR=$(find . -name "composer.json" -not -path "*/vendor/*" -exec dirname {} \;)
         if [ -z "$TARGET_DIR" ]; then
-          echo "Error: composer.json tidak ditemukan di mana pun!"
+          echo "Error: composer.json tidak ditemukan!"
           exit 1
         fi
-        echo "Project Laravel ditemukan di folder: $TARGET_DIR"
         echo "PROJECT_PATH=$TARGET_DIR" >> $GITHUB_ENV
         
         cd "$TARGET_DIR"
         php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-    # 4. Install Dependencies menggunakan path otomatis yang ditemukan di atas
+    # 4. Paksa Install Dependencies tanpa peduli drama versi PHP (Menggunakan composer asli + flag ignore)
     - name: Install Dependencies
-      uses: ramsey/composer-install@v3
-      with:
-        working-directory: ${{ env.PROJECT_PATH }}
-        composer-options: "--prefer-dist --no-scripts"
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        composer install --prefer-dist --no-ansi --no-interaction --no-scripts --no-progress --ignore-platform-reqs
 
     # 5. Generate Application Key
     - name: Generate key
