@@ -15,34 +15,42 @@ jobs:
     # 1. Ambil source code project
     - uses: actions/checkout@v4
 
-    # 2. Setup PHP versi stabil untuk Laravel
+    # 2. Setup PHP versi stabil
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
         extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite
         coverage: none
 
-    # 3. Copy environment file
+    # 3. Copy environment file (Masuk ke folder hera)
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: |
+        cd hera
+        php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-    # 4. Install Dependencies dengan cerdas (Otomatis handle cache & ekstensi)
+    # 4. Install Dependencies (Diarahkan ke folder hera)
     - name: Install Dependencies
       uses: ramsey/composer-install@v3
       with:
+        working-directory: hera
         composer-options: "--prefer-dist --no-scripts"
 
     # 5. Generate Application Key
     - name: Generate key
-      run: php artisan key:generate
+      run: |
+        cd hera
+        php artisan key:generate
 
-    # 6. Set Permission Folder agar tidak error permission denied
+    # 6. Set Permission Folder
     - name: Directory Permissions
-      run: chmod -R 777 storage bootstrap/cache
+      run: |
+        cd hera
+        chmod -R 777 storage bootstrap/cache
 
     # 7. Siapkan Database SQLite untuk testing
     - name: Create Database
       run: |
+        cd hera
         mkdir -p database
         touch database/database.sqlite
 
@@ -51,4 +59,6 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: php artisan test
+      run: |
+        cd hera
+        php artisan test
