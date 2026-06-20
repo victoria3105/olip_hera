@@ -3,52 +3,78 @@
 namespace App\Services;
 
 use App\Contracts\AdminInterface;
+use App\Models\User;
+use App\Models\Pet;
+use App\Models\Service;
+use App\Models\Reservation;
 
 class AdminService implements AdminInterface
 {
-    // User Management
+    // =========================
+    // USER
+    // =========================
+
     public function getUsers()
     {
-        return [];
+        return User::all();
     }
 
     public function deleteUser(int $id)
     {
-        return true;
+        return User::destroy($id);
     }
 
-    // Pet Management
+    // =========================
+    // PET
+    // =========================
+
     public function getPets()
     {
-        return [];
+        return Pet::with('user')->get();
     }
 
-    // Service Management
+    // =========================
+    // SERVICE
+    // =========================
+
     public function createService(array $data)
     {
-        return [];
+        return Service::create($data);
     }
 
     public function updateService(int $id, array $data)
     {
-        return [];
+        $service = Service::findOrFail($id);
+
+        $service->update($data);
+
+        return $service;
     }
 
     public function deleteService(int $id)
     {
-        return true;
+        return Service::destroy($id);
     }
 
-    // Reservation Management
+    // =========================
+    // RESERVATION
+    // =========================
+
     public function getReservations()
     {
-        return [];
+        return Reservation::with(['user', 'pet', 'service'])->get();
     }
 
     public function updateReservationStatus(
         int $reservationId,
         string $status
     ) {
-        return true;
+        $reservation = Reservation::findOrFail($reservationId);
+
+        $reservation->update([
+            'status' => $status,
+        ]);
+
+        return $reservation;
     }
 }

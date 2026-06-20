@@ -3,26 +3,34 @@
 namespace App\Services;
 
 use App\Contracts\AuthInterface;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthService implements AuthInterface
 {
     public function register(array $data)
     {
-        // Logic register user
+        return User::create($data);
     }
 
     public function login(array $credentials)
     {
-        // Logic login user
+        if (!Auth::attempt($credentials)) {
+            return null;
+        }
+
+        return Auth::user();
     }
 
     public function logout()
     {
-        // Logic logout user
+        Auth::logout();
+
+        return true;
     }
 
     public function getProfile(int $userId)
     {
-        // Logic mengambil profil user
+        return User::findOrFail($userId);
     }
 }

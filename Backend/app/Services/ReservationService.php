@@ -3,36 +3,67 @@
 namespace App\Services;
 
 use App\Contracts\ReservationInterface;
+use App\Models\Reservation;
+use App\Models\ReservationHistory;
 
 class ReservationService implements ReservationInterface
 {
     public function getAllByUser(int $userId)
     {
-        return [];
+        return Reservation::where('user_id', $userId)
+            ->with(['pet', 'service'])
+            ->get();
     }
 
     public function findById(int $id)
     {
-        return [];
+        return Reservation::with(['pet', 'service', 'histories'])
+            ->findOrFail($id);
     }
 
     public function create(array $data)
-    {
-        return [];
-    }
+{
+    $reservation = Reservation::create($data);
+
+    ReservationHistory::create([
+        'reservation_id' => $reservation->id,
+        'status' => $reservation->status,
+        'changed_by' => $reservation->user_id,
+        'notes' => 'Reservasi dibuat'
+    ]);
+
+    return $reservation;
+}
 
     public function update(int $id, array $data)
     {
-        return [];
+        $reservation = Reservation::findOrFail($id);
+
+        $reservation->update($data);
+
+        return $reservation;
     }
 
     public function cancel(int $id)
-    {
-        return true;
-    }
+{
+    $reservation = Reservation::findOrFail($id);
+
+    $reservation->update([
+        'status' => 'Cancelled'
+    ]);
+
+    ReservationHistory::create([
+        'reservation_id' => $reservation->id,
+        'status' => 'Cancelled',
+        'changed_by' => $reservation->user_id,
+        'notes' => 'Reservasi dibatalkan'
+    ]);
+
+    return $reservation;
+}
 
     public function getStatus(int $id)
     {
-        return 'pending';
+        return Reservation::findOrFail($id)->status;
     }
 }
