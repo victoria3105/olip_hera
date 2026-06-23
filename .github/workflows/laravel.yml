@@ -1,54 +1,60 @@
 name: Laravel
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+push:
+branches: [ "main" ]
+pull_request:
+branches: [ "main" ]
 
 jobs:
-  laravel-tests:
+laravel-tests:
 
-    runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: './Backend'
+```
+runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+defaults:
+  run:
+    working-directory: './Backend'
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.3'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, curl
-        coverage: none
+steps:
+- uses: actions/checkout@v4
 
-    # Langkah tambahan untuk mengecek apakah GitHub benar-benar pakai PHP 8.3
-    - name: Check PHP Version
-      run: php -v
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.4'
+    extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, curl
+    coverage: none
 
-    - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+- name: Check PHP Version
+  run: php -v
 
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
+- name: Debug Environment
+  run: |
+    pwd
+    ls -la
+    find . -name "*.php" | head -50
 
-    # Kita jalankan artisan dengan memanggil PHP secara absolut
-    - name: Generate key
-      run: php artisan key:generate
+- name: Copy .env
+  run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-    - name: Directory Permissions
-      run: chmod -R 777 storage bootstrap/cache
+- name: Install Dependencies
+  run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
 
-    - name: Create Database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
+- name: Generate key
+  run: php artisan key:generate -vvv
 
-    - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
-      run: php artisan test
+- name: Directory Permissions
+  run: chmod -R 777 storage bootstrap/cache
+
+- name: Create Database
+  run: |
+    mkdir -p database
+    touch database/database.sqlite
+
+- name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+  env:
+    DB_CONNECTION: sqlite
+    DB_DATABASE: database/database.sqlite
+  run: php artisan test
+```
