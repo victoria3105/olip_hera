@@ -1,25 +1,29 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 
-// Ini adalah CONTROLLER kamu
 export function useUserController() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Logika untuk mengambil data (bisa disambungkan ke Backend nanti)
-  useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
+  const fetchUsers = () => {
+    setLoading(true);
+    fetch(`${API_BASE_URL}/admin/users`)
       .then((res) => res.json())
-      .then((data) => {
-        setUsers(data);
+      .then((resData) => {
+        setUsers(resData.data || []);
         setLoading(false);
       });
-  }, []);
-
-  // Kamu juga bisa tambah fungsi/logic lain di sini
-  const hapusUser = (id) => {
-    setUsers(users.filter(user => user.id !== id));
   };
 
-  // Return data dan fungsi yang dibutuhkan oleh Frontend (View)
-  return { users, loading, hapusUser };
+  useEffect(() => { fetchUsers(); }, []);
+
+  const hapusUser = (id) => {
+    fetch(`${API_BASE_URL}/admin/users/${id}`, { method: 'DELETE' })
+      .then(() => {
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+      });
+  };
+
+  return { users, loading, error, hapusUser, refreshUsers: fetchUsers };
 }
