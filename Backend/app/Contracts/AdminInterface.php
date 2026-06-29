@@ -8,7 +8,7 @@ interface AdminInterface
     public function getUsers();
 
     public function deleteUser(int $id);
-
+a
     // Pet Management
     public function getPets();
 
